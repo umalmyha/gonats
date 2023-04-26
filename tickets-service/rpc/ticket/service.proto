@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package gonats.tickets;
+option go_package = "./;ticket";
+
+import "google/protobuf/timestamp.proto";
+
+service TicketService {
+  rpc CreateTicket(CreateTicketRequest) returns (CreateTicketResponse);
+  rpc GetAllTickets(GetAllTicketsRequest) returns (GetAllTicketsResponse);
+}
+
+message Ticket {
+  string id = 1;
+  string title = 2;
+  optional string description = 3;
+  string assigned_to = 4;
+  google.protobuf.Timestamp created_at = 5;
+}
+
+message CreateTicketRequest {
+  string title = 1;
+  optional string description = 2;
+  string assigned_to = 3;
+}
+
+message CreateTicketResponse {
+  Ticket ticket = 1;
+}
+
+message GetAllTicketsRequest {
+  optional string search = 1;
+}
+
+message GetAllTicketsResponse {
+  repeated Ticket tickets = 1;
+}

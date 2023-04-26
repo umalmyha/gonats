@@ -1,0 +1,37 @@
+version: '3'
+
+services:
+  tickets-db:
+    image: mysql:latest
+    hostname: tickets-db
+    environment:
+      - MYSQL_ROOT_PASSWORD=${TICKETS_MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${TICKETS_MYSQL_DATABASE}
+      - MYSQL_USER=${TICKETS_MYSQL_USER}
+      - MYSQL_PASSWORD=${TICKETS_MYSQL_PASSWORD}
+    ports:
+      - "3306:3306"
+    command: ["--default-authentication-plugin=mysql_native_password"]
+    volumes:
+      - tickets-data:/var/lib/mysql
+
+  flyway:
+    image: flyway/flyway:latest
+    command: -url=jdbc:mysql://tickets-db:3306/${TICKETS_MYSQL_DATABASE} -user=${TICKETS_MYSQL_USER} -password=${TICKETS_MYSQL_PASSWORD} -connectRetriesInterval=3 -connectRetries=5 migrate
+    volumes:
+      - ./tickets-service/migrations:/flyway/sql
+    depends_on:
+      - tickets-db
+
+  nats:
+    image: nats:latest
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+    command: "--jetstream --sd /data --server_name nats --user ${NATS_USER} --pass ${NATS_PASSWORD}"
+    volumes:
+      - nats-data:/data
+
+volumes:
+  tickets-data:
+  nats-data:
