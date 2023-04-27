@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"github.com/umalmyha/gonats/tickets-service/internal/broker"
+	"github.com/umalmyha/gonats/tickets-service/internal/broker/pub"
 	"github.com/velmie/broker/natsjs"
 	"log"
 	"net/http"
@@ -33,13 +33,13 @@ func main() {
 	}
 	defer db.Close()
 
-	pub, err := publisher(cfg.NATS)
+	publisher, err := publisher(cfg.NATS)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer pub.Close()
+	defer publisher.Close()
 
-	ticketPublisher := broker.NewTicketEventPublisher(pub)
+	ticketPublisher := pub.NewTicketEventPublisher(publisher)
 
 	ticketStore := store.NewTicketStore(db)
 
@@ -101,7 +101,7 @@ func database(url string) (*sql.DB, error) {
 
 func publisher(cfg config.NATS) (*natsjs.Publisher, error) {
 	pub, err := natsjs.NewPublisher(
-		cfg.NotificationStreamName,
+		cfg.StreamName,
 		"tickets",
 		natsjs.DefaultConnectionFactory(),
 		natsjs.DefaultJetStreamFactory(),

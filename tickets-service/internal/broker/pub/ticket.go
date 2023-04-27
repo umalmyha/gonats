@@ -1,4 +1,4 @@
-package broker
+package pub
 
 import (
 	"context"
@@ -6,19 +6,18 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/velmie/broker"
-	"github.com/velmie/broker/natsjs"
 	"github.com/vmihailenco/msgpack/v5"
 
 	"github.com/umalmyha/gonats/tickets-service/internal/events"
 )
 
-const ticketCreatedSubject = "ticket.created"
+const ticketCreatedSubject = "tickets.tickets.created"
 
 type TicketEventsPublisher struct {
-	pub *natsjs.Publisher
+	pub broker.Publisher
 }
 
-func NewTicketEventPublisher(pub *natsjs.Publisher) *TicketEventsPublisher {
+func NewTicketEventPublisher(pub broker.Publisher) *TicketEventsPublisher {
 	return &TicketEventsPublisher{pub: pub}
 }
 
